@@ -28,3 +28,22 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *User) (*User, err
 	user.ID = lastInsertedID
 	return user, nil
 }
+
+func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+
+	var user User
+	query := ` SELECT id ,
+					username ,
+					email ,
+					role 
+			FROM users
+			WHERE email=$1;
+	`
+	err := r.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Role)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, err
+}
