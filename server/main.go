@@ -32,6 +32,7 @@ func main() {
 	userHandler := user.NewUserHandler(userSvc)
 	userRouter := api.Group("/users")
 	routes.HandleUserRoutes(userHandler, userRouter)
+	// Post Entity
 
 	port := os.Getenv("PORT")
 	app.Listen(":" + port)
