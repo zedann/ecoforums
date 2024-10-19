@@ -3,6 +3,8 @@ package post
 import (
 	"context"
 	"time"
+
+	"github.com/zedann/ecoforum/server/types"
 )
 
 type PostService struct {
@@ -13,6 +15,7 @@ type PostService struct {
 func NewPostService(postRepo *PostRepository) *PostService {
 	return &PostService{
 		PostRepository: postRepo,
+		Timeout:        time.Duration(2) * time.Second,
 	}
 }
 
@@ -41,4 +44,17 @@ func (s *PostService) CreatePost(ctx context.Context, req *CreatePostReq) (*Crea
 		CreatedAt: post.CreatedAt,
 	}, nil
 
+}
+
+func (s *PostService) GetPosts(ctx context.Context, reqConfig *types.ReqConfig) ([]*Post, error) {
+	ctx, cancel := context.WithTimeout(ctx, s.Timeout)
+	defer cancel()
+
+	posts, err := s.PostRepository.GetPosts(ctx, reqConfig)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }

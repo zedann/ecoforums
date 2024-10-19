@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/zedann/ecoforum/server/db"
+	"github.com/zedann/ecoforum/server/internal/post"
 	"github.com/zedann/ecoforum/server/internal/user"
 	"github.com/zedann/ecoforum/server/routes"
 )
@@ -24,6 +25,8 @@ func main() {
 		return c.SendString("OK")
 	})
 
+	app.Static("/images", "./public/imgs")
+
 	api := app.Group("/api/v1")
 
 	// User Entity
@@ -33,6 +36,12 @@ func main() {
 	userRouter := api.Group("/users")
 	routes.HandleUserRoutes(userHandler, userRouter)
 	// Post Entity
+
+	postRepo := post.NewPostRepository(database.GetDB())
+	postSvc := post.NewPostService(postRepo)
+	postHandler := post.NewPostHandler(postSvc)
+	postRouter := api.Group("/posts")
+	routes.HandlePostRoutes(postHandler, postRouter)
 
 	port := os.Getenv("PORT")
 	app.Listen(":" + port)
