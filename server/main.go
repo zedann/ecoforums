@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"github.com/zedann/ecoforum/server/db"
 	"github.com/zedann/ecoforum/server/internal/post"
@@ -17,6 +18,13 @@ func main() {
 	app := fiber.New()
 
 	database, err := db.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:3000",        // Allow requests from your frontend
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE",     // Allowed methods
+		AllowHeaders:     "Origin, Content-Type, Accept", // Allowed headers
+		AllowCredentials: true,                           // Allow credentials (cookies, authorization headers, etc.)
+	}))
 
 	if err != nil {
 		log.Fatal("database connection failed", err)

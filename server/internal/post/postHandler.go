@@ -44,7 +44,7 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 	image := ""
 	if file != nil {
 		image = fmt.Sprintf("post_%s", file.Filename)
-		imagePath := fmt.Sprintf("./public/imgs/post_%s", image)
+		imagePath := fmt.Sprintf("./public/imgs/%s", image)
 		if err := c.SaveFile(file, imagePath); err != nil {
 			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 				"error":  "Failed to save image" + err.Error(),
