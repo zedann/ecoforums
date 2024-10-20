@@ -78,14 +78,15 @@ func (h *PostHandler) CreatePost(c *fiber.Ctx) error {
 }
 
 func (h *PostHandler) GetPosts(c *fiber.Ctx) error {
-	pageSize, err := strconv.Atoi(c.Params("pageSize"))
+	// get the params
+	pageSize, err := strconv.Atoi(c.Query("pageSize", "10"))
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"error":  "pageSize param should be an number",
 			"status": http.StatusBadRequest,
 		})
 	}
-	page, err := strconv.Atoi(c.Params("page"))
+	page, err := strconv.Atoi(c.Query("page", "1"))
 
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
@@ -93,7 +94,11 @@ func (h *PostHandler) GetPosts(c *fiber.Ctx) error {
 			"status": http.StatusBadRequest,
 		})
 	}
-	reqConfig := types.NewReqConfig(pageSize, page)
+	searchFor := c.Query("searchFor", "newest")
+
+	fmt.Println(pageSize, page, searchFor)
+
+	reqConfig := types.NewReqConfig(pageSize, page, searchFor)
 	posts, err := h.PostService.GetPosts(c.Context(), reqConfig)
 
 	if err != nil {
@@ -107,6 +112,7 @@ func (h *PostHandler) GetPosts(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"data":   posts,
 		"status": http.StatusOK,
+		"length": len(posts),
 	})
 
 }

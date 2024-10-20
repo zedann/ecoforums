@@ -33,12 +33,26 @@ func (r *PostRepository) GetPosts(ctx context.Context, reqConfig *types.ReqConfi
 				FROM posts AS p
 				INNER JOIN users as u
 				ON p.user_id = u.id
-
-				LIMIT $1 
-				OFFSET $1
+				ORDER BY $1
+				LIMIT $2
+				OFFSET $3
 	`
 
-	rows, err := r.db.QueryContext(ctx, query, reqConfig.Limit, reqConfig.Offset)
+	if reqConfig.SearchFor == "positive-highest-engagement" {
+		reqConfig.SearchFor = "(p.ups_number - p.downs_number) DESC"
+	} else if reqConfig.SearchFor == "negative-highest-engagement" {
+		reqConfig.SearchFor = "(p.ups_number - p.downs_number) ASC"
+	} else if reqConfig.SearchFor == "highest-engagement" {
+		reqConfig.SearchFor = "ABS(p.ups_number - p.downs_number) DESC"
+	} else if reqConfig.SearchFor == "lowest-engagement" {
+		reqConfig.SearchFor = "ABS(p.ups_number - p.downs_number) DESC"
+	} else if reqConfig.SearchFor == "oldest" {
+		reqConfig.SearchFor = "p.created_at ASC"
+	} else {
+		reqConfig.SearchFor = "p.created_at DESC"
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, reqConfig.SearchFor, reqConfig.Limit, reqConfig.Offset)
 
 	if err != nil {
 		return nil, err

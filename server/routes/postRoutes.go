@@ -8,4 +8,5 @@ import (
 
 func HandlePostRoutes(postHandler *post.PostHandler, postRouter fiber.Router) {
 	postRouter.Post("/", middlewares.AuthRequire(), postHandler.CreatePost)
+	postRouter.Get("/", postHandler.GetPosts)
 }
